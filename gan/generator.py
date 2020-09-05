@@ -2,9 +2,10 @@ import math
 import torch
 import torch.nn as nn
 
+
 class Generator(nn.Module):
     """
-    Generator mostly following the implementation of the DCGAN.
+    Generator mostly following the implementation of the DCGAN (https://arxiv.org/abs/1511.06434).
     """
 
     def __init__(self, latent_dim=16, img_channels=1, nb_layers=4, feature_map_size=32):
@@ -17,9 +18,7 @@ class Generator(nn.Module):
 
         layers = []
 
-        out_channels = self.feature_map_size * int(
-            math.pow(2, self.nb_layers - 1)
-        )
+        out_channels = self.feature_map_size * int(math.pow(2, self.nb_layers - 1))
 
         layers.append(
             nn.ConvTranspose2d(
