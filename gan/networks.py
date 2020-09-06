@@ -60,8 +60,8 @@ class Generator(nn.Module):
 
         self.generator = nn.Sequential(*layers, nn.Tanh())
 
-    def get_noise(self, device):
-        return torch.randn(1, self.latent_dim, 1, 1, device=device)
+    def get_noise(self, device, batch_size = 1):
+        return torch.randn(batch_size, self.latent_dim, 1, 1, device=device)
 
     def forward(self, z):
         return self.generator(z)
