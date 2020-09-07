@@ -11,6 +11,18 @@ def get_nb_layers_from_res(resolution):
     return int(math.log(resolution, 2) - 1)
 
 
+def weights_init(m):
+    """
+    Initialize the weight of the different layers
+    """
+    classname = m.__class__.__name__
+    if classname.find('Conv') != -1:
+        nn.init.normal_(m.weight.data, 0.0, 0.02)
+    elif classname.find('BatchNorm') != -1:
+        nn.init.normal_(m.weight.data, 1.0, 0.02)
+        nn.init.constant_(m.bias.data, 0)
+
+
 class Generator(nn.Module):
     """
     Generator mostly following the implementation of the DCGAN (https://arxiv.org/abs/1511.06434).
@@ -69,7 +81,7 @@ class Generator(nn.Module):
                 )
             )
 
-        self.generator = nn.Sequential(*layers, nn.Tanh())
+        self.generator = nn.Sequential(*layers, nn.Tanh()).apply(weights_init)
 
     def get_noise(self, device, batch_size=1):
         return torch.randn(batch_size, self.latent_dim, 1, 1, device=device)
@@ -124,7 +136,7 @@ class Discriminator(nn.Module):
             nn.Conv2d(in_channels, 1, kernel_size=4, stride=1, padding=0, bias=False)
         )
 
-        self.discriminator = nn.Sequential(*layers, nn.Sigmoid())
+        self.discriminator = nn.Sequential(*layers, nn.Sigmoid()).apply(weights_init)
 
     def forward(self, x):
         return self.discriminator(x).view(-1)
