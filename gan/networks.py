@@ -3,22 +3,33 @@ import torch
 import torch.nn as nn
 
 
+def get_nb_layers_from_res(resolution):
+    """
+    Return the number of intermediate layers of the generator
+    """
+    assert resolution in [8, 16, 32, 64, 128]
+    return int(math.log(resolution, 2) - 1)
+
+
 class Generator(nn.Module):
     """
     Generator mostly following the implementation of the DCGAN (https://arxiv.org/abs/1511.06434).
     """
 
-    def __init__(self, latent_dim=16, img_channels=1, nb_layers=4, feature_map_size=32):
+    def __init__(self, latent_dim=16, img_channels=1, img_res=32, feature_map_size=32):
         super(Generator, self).__init__()
 
         self.latent_dim = latent_dim
         self.img_channels = img_channels
-        self.nb_layers = nb_layers
+        self.img_res = img_res
+        self.nb_layers = get_nb_layers_from_res(img_res)
         self.feature_map_size = feature_map_size
 
         layers = []
 
-        out_channels = self.feature_map_size * int(math.pow(2, self.nb_layers - 1))
+        out_channels = int(
+            self.feature_map_size * img_res / 4
+        )  # The last layer takes a 4*4 square
 
         layers.append(
             nn.ConvTranspose2d(
@@ -60,8 +71,60 @@ class Generator(nn.Module):
 
         self.generator = nn.Sequential(*layers, nn.Tanh())
 
-    def get_noise(self, device, batch_size = 1):
+    def get_noise(self, device, batch_size=1):
         return torch.randn(batch_size, self.latent_dim, 1, 1, device=device)
 
     def forward(self, z):
         return self.generator(z)
+
+
+class Discriminator(nn.Module):
+    def __init__(self, img_channels=1, img_res=32, feature_map_size=16):
+        super(Discriminator, self).__init__()
+
+        self.img_channels = img_channels
+        self.img_res = img_res
+        self.nb_layers = get_nb_layers_from_res(img_res)
+        self.feature_map_size = feature_map_size
+
+        layers = [
+            nn.Conv2d(
+                self.img_channels,
+                feature_map_size,
+                kernel_size=4,
+                stride=2,
+                padding=1,
+                bias=False,
+            ),
+            nn.LeakyReLU(0.2, inplace=True),
+        ]
+
+        in_channels = feature_map_size
+
+        for i in range(self.nb_layers - 2):
+
+            out_channels = int(in_channels * 2)
+
+            layers.append(
+                nn.Conv2d(
+                    in_channels,
+                    out_channels,
+                    kernel_size=4,
+                    stride=2,
+                    padding=1,
+                    bias=False,
+                )
+            )
+            layers.append(nn.BatchNorm2d(out_channels))
+            layers.append(nn.LeakyReLU(0.2, inplace=True))
+
+            in_channels = out_channels
+
+        layers.append(
+            nn.Conv2d(in_channels, 1, kernel_size=4, stride=1, padding=0, bias=False)
+        )
+
+        self.discriminator = nn.Sequential(*layers, nn.Sigmoid())
+
+    def forward(self, x):
+        return self.discriminator(x).view(-1)
