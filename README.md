@@ -4,6 +4,10 @@
 
 [DCGAN](https://arxiv.org/pdf/1511.06434.pdf) implementation to generate MNIST images.
 
-![Faked MNIST Samples](fake_mnist.jpg)
+Real MNIST Samples            |  Fake MIST Samples
+:-------------------------:|:-------------------------:
+![Real MNIST Samples](real_mnist.jpg)   |  ![Faked MNIST Samples](fake_mnist.jpg) 
+
+Install the sources with `poetry install`
 
 Run tests with `python -m pytest tests/`
