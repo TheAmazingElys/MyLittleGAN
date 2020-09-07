@@ -4,7 +4,7 @@
 
 [DCGAN](https://arxiv.org/pdf/1511.06434.pdf) implementation to generate MNIST images.
 
-Real MNIST Samples            |  Fake MIST Samples
+Real MNIST Samples            |  Fake MNIST Samples
 :-------------------------:|:-------------------------:
 ![Real MNIST Samples](real_mnist.jpg)   |  ![Faked MNIST Samples](fake_mnist.jpg) 
 
