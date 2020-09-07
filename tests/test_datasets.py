@@ -1,5 +1,6 @@
 from gan import datasets
 
+
 def test_mnist_dataset():
     """
     Check if the dataset is well formed
