@@ -83,11 +83,28 @@ class Generator(nn.Module):
 
         self.generator = nn.Sequential(*layers, nn.Tanh()).apply(weights_init)
 
-    def get_noise(self, device, batch_size=1):
-        return torch.randn(batch_size, self.latent_dim, 1, 1, device=device)
-
     def forward(self, z):
         return self.generator(z)
+
+    def get_noise(self, device, batch_size=1):
+        """
+        Return some random noise
+        """
+        return torch.randn(batch_size, self.latent_dim, 1, 1, device=device)
+
+    def get_fixed_noise(self, device, size):
+        """
+        Return some fixed noise
+        """
+        if not hasattr(self, "fixed_noise"):
+            self.fixed_noise_device = device
+            self.fixed_noise = torch.randn(64, self.latent_dim, 1, 1, device=device)
+
+        if fixed_noise_device != device:
+            self.fixed_noise_device = device
+            self.fixed_noise = self.fixed_noise.to(device)
+
+        return self.fixed_noise
 
 
 class Discriminator(nn.Module):

@@ -1,5 +1,9 @@
 import numpy as np, matplotlib.pyplot as plt
 
+"""
+Related to the creation of the grid of images
+"""
+
 
 def make_grid(imgs, img_size=32, img_per_row=8):
     """
@@ -34,3 +38,23 @@ def plot_img(imgs, img_size=32, img_per_row=8, file_name=None):
 
     if file_name:
         plt.savefig(file_name, bbox_inches="tight", pad_inches=0.05)
+
+
+"""
+Signals are all you need
+"""
+
+
+class Signal:
+    def __init__(self):
+        self.connected = []
+
+    def connect(self, function):
+        """ The connected functions will be called when the signal will emit"""
+        if function not in self.connected:
+            self.connected.append(function)
+
+    def emit(self, *args, **kwargs):
+        """ Call the connected functions """
+        for i_function in self.connected:
+            i_function(*args, **kwargs)
