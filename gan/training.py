@@ -2,6 +2,8 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 
+from gan import utils
+
 REAL_LABEL = 1.0
 FAKE_LABEL = 0.0
 
@@ -15,6 +17,10 @@ def train(
     lr=0.0002,
     loss_function=nn.BCELoss(),
 ):
+    """
+    TODO Replace all the things related to monitoring by signals and move the usage of theses things
+    to a monitor class
+    """
 
     assert dataloader.drop_last  # We assume the last batch to be dropped if incomplete
     disc_optimizer = optim.Adam(disc_net.parameters(), lr=lr, betas=(0.5, 0.999))
@@ -31,11 +37,11 @@ def train(
             """
             disc_net.zero_grad()
             label = torch.full(
-                (batch_size,), REAL_LABEL, dtype=torch.float, device=device
+                (dataloader.batch_size,), REAL_LABEL, dtype=torch.float, device=device
             )
 
             """When generalizing the code to others dataset we should do the unsqueeze in the collate_fn"""
-            output = disc_net(i_batch.to(self.device).float().unsqueeze(1)).view(-1)
+            output = disc_net(i_batch.to(device).float().unsqueeze(1)).view(-1)
             loss_real = loss_function(output, label)
             loss_real.backward()
 
@@ -44,7 +50,7 @@ def train(
             """
             Training of the discriminator with all fake data
             """
-            fake = gen_net(gen_net.get_noise(device, batch_size))
+            fake = gen_net(gen_net.get_noise(device, dataloader.batch_size))
             label.fill_(FAKE_LABEL)
 
             output = disc_net(fake.detach()).view(-1)

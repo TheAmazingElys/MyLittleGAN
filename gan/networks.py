@@ -92,7 +92,7 @@ class Generator(nn.Module):
         """
         return torch.randn(batch_size, self.latent_dim, 1, 1, device=device)
 
-    def get_fixed_noise(self, device, size):
+    def get_fixed_noise(self, device):
         """
         Return some fixed noise
         """
@@ -100,7 +100,8 @@ class Generator(nn.Module):
             self.fixed_noise_device = device
             self.fixed_noise = torch.randn(64, self.latent_dim, 1, 1, device=device)
 
-        if fixed_noise_device != device:
+        if self.fixed_noise_device != device:
+            """ Move the fixed noise to the right device if adequate """
             self.fixed_noise_device = device
             self.fixed_noise = self.fixed_noise.to(device)
 
