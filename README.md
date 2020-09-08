@@ -6,7 +6,7 @@
 
 Real MNIST Samples            |  Fake MNIST Samples
 :-------------------------:|:-------------------------:
-![Real MNIST Samples](real_mnist.jpg)   |  ![Faked MNIST Samples](fake_mnist.jpg) 
+![Real MNIST Samples](imgs/real_mnist.jpg)   |  ![Faked MNIST Samples](imgs/fake_mnist.jpg) 
 
 Install the sources with `poetry install`
 
