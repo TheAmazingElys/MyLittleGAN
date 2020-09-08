@@ -31,7 +31,7 @@ def train(
     """Dirty var, to move elsewere when using collate_fn"""
     unsqueeze = True
     img_size = 32
-    cmap = "grey"
+    cmap = "gray"
 
     print("Starting Training Loop...")
     for i_epoch in range(nb_epochs):
