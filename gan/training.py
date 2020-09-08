@@ -27,10 +27,22 @@ def train(
     gen_optimizer = optim.Adam(gen_net.parameters(), lr=lr, betas=(0.5, 0.999))
 
     iters = 0
+    
+    """Dirty var, to move elsewere when using collate_fn"""
+    unsqueeze = True
+    img_size = 32
+    cmap = "grey"
 
     print("Starting Training Loop...")
     for i_epoch in range(nb_epochs):
         for i, i_batch in enumerate(dataloader, 0):
+            
+            if len(i_batch) == 2:
+                """ Dirty but for the special case of Celiba since we don't use collate_fn"""
+                i_batch = i_batch[0]
+                unsqueeze = False
+                cmap = "rgb"
+                img_size = 64
 
             """
             Training of the discriminator with actual data
@@ -41,7 +53,8 @@ def train(
             )
 
             """When generalizing the code to others dataset we should do the unsqueeze in the collate_fn"""
-            output = disc_net(i_batch.to(device).float().unsqueeze(1)).view(-1)
+            disc_input = i_batch.to(device).float()
+            output = disc_net(disc_input.unsqueeze(1) if unsqueeze else disc_input).view(-1)
             loss_real = loss_function(output, label)
             loss_real.backward()
 
@@ -93,6 +106,6 @@ def train(
                 """
                 with torch.no_grad():
                     fake = gen_net(gen_net.get_fixed_noise(device)).detach().cpu()
-                    utils.plot_img(fake, file_name=f"fake_{iters}.jpg")
+                    utils.plot_img(fake, img_size = img_size, cmap = cmap, file_name=f"fake_{iters}.jpg")
 
             iters += 1
